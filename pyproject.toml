@@ -1,0 +1,20 @@
+[project]
+name = "chess-vision"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "RangerBug", email = "willietrafton3@gmail.com" }
+]
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=2.2.6",
+    "opencv-python>=4.11.0.86",
+]
+
+[project.scripts]
+chess-vision = "chess_vision.main:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

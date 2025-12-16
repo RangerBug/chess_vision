@@ -9,8 +9,5 @@ wheels/
 # Virtual environments
 .venv
 
-# Videos
-videos/
-
 # Saved Games
 saved_games/

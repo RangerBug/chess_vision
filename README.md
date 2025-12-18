@@ -38,12 +38,19 @@ A **deep learning–based computer vision system** that tracks live, over-the-bo
 ---
 
 ## Usage
+Run the application using `uv`:
+
+```bash
 uv run python src/chess_vision/main.py
+```
+
+Once running:
+
 * Start the video stream
-* **`c`** – Calibrate board (click a8, h8, h1, a1 in order)
-* **`p`** – Pause
-* **`e`** – End game, save PGN, exit
-* **`q`** – Quit without saving
+* **`c`** – Calibrate the board by clicking corners in order: a8, h8, h1, a1
+* **`p`** – Pause / resume processing
+* **`e`** – End the game, save the PGN log, and exit
+* **`q`** – Quit immediately without saving
 
 Recalibration can be done at any time, but the game log resets only on program restart.
 

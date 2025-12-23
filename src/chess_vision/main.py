@@ -29,7 +29,7 @@ transform = transforms.Compose([
 ])
 
 
-frame_number = 1
+frame_number = 0
 def get_frame(cap):
     global frame_number
     if frame_number >= int(cap.get(cv2.CAP_PROP_FRAME_COUNT)):
@@ -192,19 +192,23 @@ def main():
     results = []
     process_frame = True
     old_board = [[None for _ in range(8)] for _ in range(8)]
-    use_video_file = True
+    use_video_file = False
 
     # Start video capture
-    cap = cv2.VideoCapture(0, cv2.CAP_AVFOUNDATION) if not use_video_file else cv2.VideoCapture(video_loc)
+    cap = cv2.VideoCapture(0) if not use_video_file else cv2.VideoCapture(video_loc)
     if not cap.isOpened():
         print("Error: Could not open video.")
         return
     
     # Main loop
     while True:
-
+        frame = None
         # Get a frame from the camera
-        frame = get_frame(cap) 
+        if use_video_file:
+            frame = get_frame(cap)
+        else:
+            _, frame = cap.read()
+
         if frame is None:
             print("No frame retrieved, exiting.")
             break
@@ -265,6 +269,7 @@ def main():
             warped_results = overlay_results(warped_board.copy(), results)
             cv2.imshow("Chess Vision - Reprojected", warped_results)
 
+        # All temp until a lightweight gui is made
         key = cv2.waitKey(1) & 0xFF
         if key == ord('q'):
             break
@@ -278,6 +283,9 @@ def main():
             print("Ending Game")
             save_game()
             break # If dont want to break, need to reset the game_board
+        elif key == ord('g'):
+            print("Current Game:")
+            print(chess.pgn.Game.from_board(game_board))
 
 
     cap.release()

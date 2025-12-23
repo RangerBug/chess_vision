@@ -73,14 +73,21 @@ def get_squares(warped_board):
     return squares
 
 
-def predict_square(square):
-    img = cv2.cvtColor(square, cv2.COLOR_BGR2RGB)
-    img = transforms.ToPILImage()(img)
-    img = transform(img).unsqueeze(0).to(device)
+def predict_square(squares):
+    imgs = []
+    for sq in squares:
+        img = cv2.cvtColor(sq, cv2.COLOR_BGR2RGB)
+        img = transforms.ToPILImage()(img)
+        img = transform(img)
+        imgs.append(img)
+    
+    batch = torch.stack(imgs).to(device) # [64, 3, 224, 224]
+    
     with torch.no_grad():
-        out = model(img)
-        _, pred = torch.max(out, 1)
-    return pred.item()  # 0 = empty, 1 = occupied
+        out = model(batch)
+        preds = out.argmax(dim=1)
+
+    return preds.cpu().tolist()  # 0 = empty, 1 = occupied
 
 
 def overlay_results(frame, results, matrix=None):
@@ -227,11 +234,12 @@ def main():
                 print("Processing...")
                 # Get squares
                 squares = get_squares(warped_board)
-                
+                square_imgs = [square for _, _, square in squares]
+                preds = predict_square(square_imgs) # Send all square images to process in a single batch
+
                 # Predictions
                 results = []
-                for row, col, square in squares:
-                    pred = predict_square(square)
+                for (row, col, _), pred in zip(squares, preds):
                     results.append((row, col, pred))
                 
                 process_frame = False # Make sure no processing happens until after motion is detected
@@ -242,10 +250,8 @@ def main():
                     old_pred = old_board[row][col]
                     if old_pred != pred:
                         if old_pred == 0 and pred == 1: # empty >> occupied
-                            #print(f"EMPTY >> OCC @ Col: {col+1}, Row: {row+1}")
                             end_changes.append((col, row))
                         elif old_pred == 1 and pred == 0: # occupied >> empty
-                            #print(f"OCC >> EMPTY @ Col: {col+1}, Row: {row+1}")
                             start_changes.append((col, row))
                 if start_changes or end_changes:
                     log_move(start_changes, end_changes)
@@ -253,11 +259,6 @@ def main():
                 # Second pass to write old board because im scared
                 for row, col, pred in results:
                     old_board[row][col] = pred
-
-                # print nicely
-                # print("\n=== Predicted Board ===")
-                # for row in old_board:
-                #     print(" ".join(f"{str(x):>2}" for x in row))
 
             # Overlay Prediction Results
             #inverse_matrix = np.linalg.inv(warped_matrix)

@@ -5,8 +5,8 @@ from chess_vision.dataset.dataset import SquareDataset
 def load_dataset():
     data_dir = 'data/'
     image_size = 224
-    batch_size = 32
-    val_split = 0.2
+    batch_size = 64
+    val_split = 0.15
 
     transform = transforms.Compose([
         transforms.Resize((image_size, image_size)), # upsampling to match pretrained model

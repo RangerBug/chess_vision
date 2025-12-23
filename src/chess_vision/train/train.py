@@ -11,7 +11,7 @@ def main():
     # Datasets
     train_loader, val_loader = load_dataset()
     # Epoch
-    num_epochs = 5
+    num_epochs = 10
     # Loss Function
     criterion = nn.CrossEntropyLoss()
     train_losses, val_losses = [], []
